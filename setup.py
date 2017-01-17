@@ -1,11 +1,19 @@
 
 import sys
 from setuptools import setup, find_packages
+from distutils.extension import Extension
+from Cython.Distutils import build_ext
+from Cython.Build import cythonize
 
 install_requires = ["numpy"]
 
 
+ext = [Extension(name="rle_pyx",
+                sources=["pyx/rle_pyx.pyx"])]
+
+
 setup(
+    cmdclass = {"build_ext": build_ext},
     name="pyranges",
     packages=find_packages(),
     version="0.0.1",
@@ -16,6 +24,7 @@ setup(
     keywords=["Bioinformatics"],
     license=["MIT"],
     install_requires=install_requires,
+    ext_modules = ext,
     classifiers=[
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
@@ -28,4 +37,3 @@ setup(
         "Topic :: Scientific/Engineering"
     ],
     long_description=("See README.md"))
-
