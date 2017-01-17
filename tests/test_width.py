@@ -1,4 +1,4 @@
-from ..RleClass.Rle import *
+from rle.rle import Rle
 
 # width should be the same as runLength
 

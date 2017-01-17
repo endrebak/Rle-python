@@ -1,9 +1,15 @@
 from __future__ import print_function
-from itertools import izip
+
+# itertools izip does not exist in Python3; zip is izip there
+try:
+    from itertools import izip
+    zip = izip
+except ImportError:
+    pass
+
 from bisect import bisect
 import os, sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 class Rle():
 
@@ -17,13 +23,13 @@ class Rle():
             if lengths is None:
                 lengths = [1] * len(values)
             assert(len(values) == len(lengths))
-            for val, le in izip(values, lengths):
+            for val, le in zip(values, lengths):
                 self.add(val, le)
 
     def __str__(self):
         return 'Rle of length {} with {} runs\n  Lengths:\t'.format(self.length(), self.nrun()) \
             + str(self.lengths) + '\n  Values : \t' + str(self.values)
-    
+
     @staticmethod
     def compute_lengths(a_le, b_le):
         if (not a_le) or (not b_le):
@@ -35,7 +41,7 @@ class Rle():
         b_ind = 0
         a_rem = a_le[0]
         b_rem = b_le[0]
-        
+
         while a_ind < len(a_le) and b_ind < len(b_le):
             nb_to_take = min(a_rem, b_rem)
             lengths.append(nb_to_take)
@@ -50,15 +56,15 @@ class Rle():
                 b_ind += 1
                 b_rem = 0 if b_ind == len(b_le) else b_le[b_ind]
         return (lengths, a, b)
-    
+
     def _element_wise_operation(self, other, op):
         (lengths, a, b) = _compute_lengths(self.lengths, other.lengths)
         values = []
-        for (i, j) in izip(a, b):
+        for (i, j) in zip(a, b):
             values.append(op(self.values[i], other.values[j]))
         return Rle(values, lengths)
-    
-    
+
+
     def element_wise_operation(self, other, op):
         assert(self.length() == other.length())
         if self.length() == 0:  # case where both are empty
@@ -87,7 +93,7 @@ class Rle():
 
     def single_operation(self, op):
         r = Rle()
-        for val, le in izip(self.values, self.lengths):
+        for val, le in zip(self.values, self.lengths):
             r.add(op(val), le)
         return r
 
@@ -152,7 +158,7 @@ class Rle():
 
     def end(self):
         return self.cum_end_lengths
-       
+
     def head(self, n):
         if n < 0:
             n %= self.length()
@@ -170,42 +176,42 @@ class Rle():
         # see
         # http://stackoverflow.com/questions/4654414/python-append-item-to-list-n-times
         r = []
-        for (val, le) in izip(self.values, self.lengths):
+        for (val, le) in zip(self.values, self.lengths):
             r.extend([val] * le)
         return r
 
     def length(self):
         return self.tot_length
-        
+
     def get_index(self, index):
         index %= self.length()
         return bisect(self.start(), index) - 1
-    
+
     def get(self, index):
         return self.values[self.get_index(index)]
-    
+
     def find_run(self, indexes):
         return [self.get_index(i) for i in indexes]
-    
+
     def clear(self):
         self.tot_length = 0
         self.lengths = []
         self.cum_lengths = []
         self.cum_end_lengths = []
         self.values = []
-        
-    def append(self, other, after = None):	
+
+    def append(self, other, after = None):
         after = self.length() if after is None else after
         curr = self.head(after - 1)
         print(curr)
-        for (val, le) in izip(other.values, other.lengths):
+        for (val, le) in zip(other.values, other.lengths):
             curr.add(val, le)
         return curr
-    
+
     def rev(self):
         return Rle(list(reversed(self.values)), list(reversed(self.lengths)))
- 
-        
+
+
     def tail(self, n):
         if n < 0:
             n %= self.length()
@@ -217,38 +223,38 @@ class Rle():
             n -= to_take
             index -= 1
         return res.rev()
-    
+
     def sorted(self, compare = None):
         compare = (lambda x, y: x < y) if compare is None else compare
-        
+
         #  check elements inside every run
         for i in range(0, self.length()):
             if self.lengths[i] > 1 and (not compare(self.values[i], self.values[i])):
                 return False
-                
+
         #  check transition between runs
         for i in range(1, self.length()):
             if not compare(self.values[i-1], self.values[i]):
                 return False
-        
+
         return True
-     
+
     def map(self, f):
         r = Rle()
-        for (val, le) in izip(self.values, self.lengths):
+        for (val, le) in zip(self.values, self.lengths):
             r.add(f(val), le)
         return r
-    
+
     def filter(self, f):
         r = Rle()
-        for (val, le) in izip(self.values, self.lengths):
+        for (val, le) in zip(self.values, self.lengths):
             if f(val):
                 r.add(val, le)
         return r
-            
-         
-            
-		
+
+
+
+
 
 
 r1 = Rle([1, 1, 1, 4, 4, 5, 4, 3], [3, 4, 5, 6, 7, 8, 9, 10])

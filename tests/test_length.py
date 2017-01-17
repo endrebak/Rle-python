@@ -1,4 +1,4 @@
-from ..RleClass import Rle
+from rle.rle import Rle
 
 
 class TestClass:
