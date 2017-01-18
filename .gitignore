@@ -1,6 +1,7 @@
+*/bin/*
+pyx/*.c
 *.swp
 *.so
-*.c
 *.pyc
 build/
 dist/
