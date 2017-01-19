@@ -1,3 +1,4 @@
+#include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "minunit.h"
@@ -64,23 +65,33 @@ static int * run_length(int *ls1, int ls1_length, int *ls2, int ls2_length) { //
 
 static char * test_runlength(){
 
-  int *ls1 = (int *)malloc(sizeof(int)*(10));
-  int *ls2 = (int *)malloc(sizeof(int)*(10));
+  int size = 1e6;
+  int *ls1 = (int *)malloc(sizeof(int)*(size));
+  int *ls2 = (int *)malloc(sizeof(int)*(size));
 
   int i;
-  for (i=0; i < 10; i++){
+  for (i=0; i < size; i++){
     ls1[i] = i % 2 == 0 ? 1 : 2;
   }
 
-  for (i=0; i < 10; i++){
+  for (i=0; i < size; i++){
     ls2[i] = i % 2 == 0 ? 2 : 1;
   }
 
-  int *new_lengths = run_length(ls1, 10, ls2, 10);
+  clock_t begin = clock();
 
-  for(i = 0; i < 20; i++) {
-      printf("%d ", new_lengths[i]);
-    }
+  /* here, do your time-consuming job */
+
+  int *new_lengths = run_length(ls1, size, ls2, size);
+
+  clock_t end = clock();
+  double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+
+  printf("Time used: %f\n", time_spent);
+
+  /* for(i = 0; i < 2 * size; i++) { */
+  /*     printf("%d ", new_lengths[i]); */
+  /*   } */
   printf("\n");
 
   mu_assert("new_lengths not correct", new_lengths[0] == 1);
